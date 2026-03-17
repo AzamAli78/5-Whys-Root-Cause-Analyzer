@@ -279,7 +279,11 @@ export default function App() {
               >
                 <div className="flex items-center justify-between mb-6 md:mb-8">
                   <h2 className="text-xl md:text-2xl font-bold">How it Works</h2>
-                  <button onClick={() => setShowInfo(false)} className="text-slate-muted hover:text-slate-light">
+                  <button 
+                    onClick={() => setShowInfo(false)} 
+                    className="text-slate-muted hover:text-slate-light"
+                    title="Close Info"
+                  >
                     <X size={24} />
                   </button>
                 </div>
@@ -337,7 +341,11 @@ export default function App() {
               >
                 <div className="flex items-center justify-between mb-6 md:mb-8">
                   <h2 className="text-xl md:text-2xl font-bold">Prompt Settings</h2>
-                  <button onClick={() => setShowSettings(false)} className="text-slate-muted hover:text-slate-light">
+                  <button 
+                    onClick={() => setShowSettings(false)} 
+                    className="text-slate-muted hover:text-slate-light"
+                    title="Close Settings"
+                  >
                     <X size={24} />
                   </button>
                 </div>
@@ -402,6 +410,7 @@ export default function App() {
                       setShowSettings(false);
                     }}
                     className="w-full py-4 bg-emerald-success text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-success/90 transition-all shadow-lg shadow-emerald-success/20"
+                    title="Save your custom system instructions"
                   >
                     <Save size={20} />
                     <span>Save Custom Prompts</span>
@@ -415,6 +424,7 @@ export default function App() {
                       localStorage.removeItem('5whys_custom_analysis_prompt');
                     }}
                     className="w-full text-xs font-bold uppercase tracking-widest text-slate-muted hover:text-amber-warning transition-colors"
+                    title="Restore default system instructions"
                   >
                     Reset to Defaults
                   </button>
@@ -447,6 +457,7 @@ export default function App() {
                         <button 
                           onClick={() => setSearchQuery('')}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-muted hover:text-slate-light"
+                          title="Clear search"
                         >
                           <X size={16} />
                         </button>
@@ -541,6 +552,7 @@ export default function App() {
                 <button
                   onClick={() => setState(prev => ({ ...prev, status: 'idle' }))}
                   className="w-full py-5 bg-indigo-accent text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-accent/90 transition-all shadow-lg shadow-indigo-accent/20"
+                  title="Start a fresh root cause analysis"
                 >
                   Start New Analysis
                 </button>
@@ -583,6 +595,7 @@ export default function App() {
                     onClick={() => startAnalysis(inputValue)}
                     disabled={loading || !inputValue.trim()}
                     className="w-full py-5 bg-indigo-accent text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-accent/90 transition-all shadow-lg shadow-indigo-accent/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={inputValue.trim() ? "Begin the 5 Whys process" : "Please enter a problem first"}
                   >
                     {loading ? (
                       <>
@@ -654,6 +667,7 @@ export default function App() {
                             ? 'bg-indigo-accent/20 border-indigo-accent shadow-[0_0_15px_rgba(99,102,241,0.3)]' 
                             : 'bg-navy-900 border-white/5 hover:border-indigo-accent hover:bg-navy-900/50'
                         }`}
+                        title={`Select: ${option}`}
                       >
                         <span className={`text-base md:text-lg font-medium pr-4 transition-colors ${selectedAnswer === option ? 'text-indigo-accent' : ''}`}>
                           {option}
@@ -788,6 +802,7 @@ export default function App() {
                           <button 
                             onClick={() => handleFeedback(history[0].id, 'helpful')}
                             className="flex items-center gap-2 px-6 py-3 rounded-xl border border-navy-900/10 hover:bg-emerald-success/10 hover:border-emerald-success hover:text-emerald-success transition-all font-bold"
+                            title="This analysis was helpful"
                           >
                             <ThumbsUp size={20} />
                             Helpful
@@ -795,6 +810,7 @@ export default function App() {
                           <button 
                             onClick={() => handleFeedback(history[0].id, 'not-helpful')}
                             className="flex items-center gap-2 px-6 py-3 rounded-xl border border-navy-900/10 hover:bg-amber-warning/10 hover:border-amber-warning hover:text-amber-warning transition-all font-bold"
+                            title="This analysis was not helpful"
                           >
                             <ThumbsDown size={20} />
                             Not Helpful
@@ -808,6 +824,7 @@ export default function App() {
                 <button
                   onClick={reset}
                   className="w-full py-5 bg-indigo-accent text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-indigo-accent/90 transition-all shadow-lg shadow-indigo-accent/20 text-lg"
+                  title="Clear current analysis and start over"
                 >
                   <RefreshCw size={24} />
                   Analyze Another Problem
