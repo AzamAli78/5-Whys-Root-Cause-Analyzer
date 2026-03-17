@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, ArrowRight, RefreshCw, CheckCircle2, Lightbulb, AlertCircle, Loader2, ChevronRight, History, Trash2, X, Calendar, Target, Settings, Save, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Search, ArrowRight, RefreshCw, CheckCircle2, Lightbulb, AlertCircle, Loader2, ChevronRight, History, Trash2, X, Calendar, Target, Settings, Save, ThumbsUp, ThumbsDown, Info, HelpCircle } from 'lucide-react';
 import { AnalysisState, HistoryEntry } from './types';
 import { generateNextWhy, generateFinalAnalysis } from './services/geminiService';
 
@@ -17,10 +17,12 @@ export default function App() {
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
   const [customWhyInstruction, setCustomWhyInstruction] = useState('You are a Root Cause Analysis expert.');
   const [customAnalysisInstruction, setCustomAnalysisInstruction] = useState('You are a Root Cause Analysis expert.');
   const [showSettings, setShowSettings] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   const placeholders = useMemo(() => [
     "e.g., My project is always behind schedule...",
@@ -103,7 +105,7 @@ export default function App() {
         currentWhy: firstWhy,
       });
     } catch (err) {
-      setError('Failed to start analysis. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to start analysis. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -112,6 +114,8 @@ export default function App() {
 
   const handleAnswer = async (answer: string) => {
     if (!state.currentWhy) return;
+    
+    setSelectedAnswer(answer);
     
     const newSteps = [...state.steps, { why: state.currentWhy.question, answer }];
     const nextStepNum = state.currentStep + 1;
@@ -149,10 +153,11 @@ export default function App() {
         }));
       }
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);
+      setSelectedAnswer(null);
     }
   };
 
@@ -203,6 +208,7 @@ export default function App() {
               onClick={() => {
                 setShowSettings(!showSettings);
                 if (state.status === 'history') setState(prev => ({ ...prev, status: 'idle' }));
+                if (showInfo) setShowInfo(false);
               }}
               className={`p-2.5 md:p-3 rounded-xl transition-colors ${showSettings ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
               title="Settings"
@@ -211,8 +217,20 @@ export default function App() {
             </button>
             <button 
               onClick={() => {
+                setShowInfo(!showInfo);
+                if (state.status === 'history') setState(prev => ({ ...prev, status: 'idle' }));
+                if (showSettings) setShowSettings(false);
+              }}
+              className={`p-2.5 md:p-3 rounded-xl transition-colors ${showInfo ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
+              title="How it Works"
+            >
+              <HelpCircle size={20} className="md:w-6 md:h-6" />
+            </button>
+            <button 
+              onClick={() => {
                 setState(prev => ({ ...prev, status: prev.status === 'history' ? 'idle' : 'history' }));
                 if (showSettings) setShowSettings(false);
+                if (showInfo) setShowInfo(false);
               }}
               className={`p-2.5 md:p-3 rounded-xl transition-colors ${state.status === 'history' ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
               title="History"
@@ -250,6 +268,64 @@ export default function App() {
         <main className="relative">
           <AnimatePresence mode="wait">
             
+            {/* Info State */}
+            {showInfo && (
+              <motion.div
+                key="info"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="bg-navy-800 rounded-[24px] md:rounded-[32px] p-6 md:p-8 shadow-xl border border-white/5 mb-8"
+              >
+                <div className="flex items-center justify-between mb-6 md:mb-8">
+                  <h2 className="text-xl md:text-2xl font-bold">How it Works</h2>
+                  <button onClick={() => setShowInfo(false)} className="text-slate-muted hover:text-slate-light">
+                    <X size={24} />
+                  </button>
+                </div>
+
+                <div className="space-y-8">
+                  <section>
+                    <h3 className="text-indigo-accent font-bold uppercase tracking-widest text-xs mb-3">The Methodology</h3>
+                    <p className="text-slate-light leading-relaxed">
+                      The <span className="font-bold text-white">5 Whys</span> is an iterative interrogative technique used to explore the cause-and-effect relationships underlying a particular problem. The primary goal is to determine the root cause by repeating the question "Why?".
+                    </p>
+                  </section>
+
+                  <section>
+                    <h3 className="text-indigo-accent font-bold uppercase tracking-widest text-xs mb-3">The Process</h3>
+                    <div className="relative pl-8 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-indigo-accent/20">
+                      {[
+                        { t: "Define the Problem", d: "Start with a clear, specific problem statement." },
+                        { t: "Ask 'Why?'", d: "Ask why the problem occurs and record the answer." },
+                        { t: "Repeat 5 Times", d: "Use the previous answer as the basis for the next 'Why'." },
+                        { t: "Identify Root Cause", d: "The 5th answer usually reveals the systemic issue." },
+                        { t: "Take Action", d: "Implement a solution that addresses the root cause." }
+                      ].map((step, i) => (
+                        <div key={i} className="relative">
+                          <div className="absolute -left-8 top-1 w-6 h-6 rounded-full bg-navy-900 border-2 border-indigo-accent flex items-center justify-center text-[10px] font-bold text-indigo-accent z-10">
+                            {i + 1}
+                          </div>
+                          <h4 className="font-bold text-slate-light text-sm mb-1">{step.t}</h4>
+                          <p className="text-slate-muted text-xs leading-relaxed">{step.d}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="bg-navy-900/50 rounded-2xl p-5 border border-white/5">
+                    <h3 className="text-emerald-success font-bold uppercase tracking-widest text-[10px] mb-3 flex items-center gap-2">
+                      <Lightbulb size={14} />
+                      Pro Tip
+                    </h3>
+                    <p className="text-xs text-slate-muted leading-relaxed italic">
+                      "If you don't ask the right 'Why', you'll never find the right 'How'. The 5 Whys isn't about blaming people—it's about fixing the process."
+                    </p>
+                  </section>
+                </div>
+              </motion.div>
+            )}
+
             {/* Settings State */}
             {showSettings && (
               <motion.div
@@ -285,9 +361,12 @@ export default function App() {
                     <textarea 
                       value={customWhyInstruction}
                       onChange={(e) => setCustomWhyInstruction(e.target.value)}
-                      className="w-full h-28 md:h-32 p-4 rounded-xl bg-navy-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-accent transition-all text-sm font-medium"
+                      className="w-full h-28 md:h-32 p-4 rounded-xl bg-navy-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-accent transition-all text-sm font-medium mb-2"
                       placeholder="e.g., You are a business consultant focusing on efficiency..."
                     />
+                    <p className="text-[10px] text-slate-muted italic px-1">
+                      Example: "Act as a psychological counselor focusing on cognitive biases" or "Focus on technical infrastructure and scalability issues."
+                    </p>
                   </div>
 
                   <div>
@@ -308,9 +387,12 @@ export default function App() {
                     <textarea 
                       value={customAnalysisInstruction}
                       onChange={(e) => setCustomAnalysisInstruction(e.target.value)}
-                      className="w-full h-28 md:h-32 p-4 rounded-xl bg-navy-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-accent transition-all text-sm font-medium"
+                      className="w-full h-28 md:h-32 p-4 rounded-xl bg-navy-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-accent transition-all text-sm font-medium mb-2"
                       placeholder="e.g., Provide solutions specifically for a tech startup context..."
                     />
+                    <p className="text-[10px] text-slate-muted italic px-1">
+                      Example: "Provide solutions suitable for a solo founder with zero budget" or "Format the output as a formal executive summary for a board meeting."
+                    </p>
                   </div>
 
                   <button 
@@ -567,27 +649,48 @@ export default function App() {
                         key={idx}
                         onClick={() => handleAnswer(option)}
                         disabled={loading}
-                        className="group flex items-center justify-between p-4 md:p-6 rounded-2xl bg-navy-900 border border-white/5 hover:border-indigo-accent hover:bg-navy-900/50 transition-all text-left"
+                        className={`group flex items-center justify-between p-4 md:p-6 rounded-2xl transition-all text-left border ${
+                          selectedAnswer === option 
+                            ? 'bg-indigo-accent/20 border-indigo-accent shadow-[0_0_15px_rgba(99,102,241,0.3)]' 
+                            : 'bg-navy-900 border-white/5 hover:border-indigo-accent hover:bg-navy-900/50'
+                        }`}
                       >
-                        <span className="text-base md:text-lg font-medium pr-4">{option}</span>
-                        <ChevronRight className="text-slate-muted group-hover:text-indigo-accent transition-colors flex-shrink-0" size={20} />
+                        <span className={`text-base md:text-lg font-medium pr-4 transition-colors ${selectedAnswer === option ? 'text-indigo-accent' : ''}`}>
+                          {option}
+                        </span>
+                        {selectedAnswer === option ? (
+                          <Loader2 className="animate-spin text-indigo-accent flex-shrink-0" size={20} />
+                        ) : (
+                          <ChevronRight className="text-slate-muted group-hover:text-indigo-accent transition-colors flex-shrink-0" size={20} />
+                        )}
                       </button>
                     ))}
                     <div className="relative mt-2 md:mt-4">
                       <input
                         type="text"
                         placeholder="D) Other (type your own...)"
-                        className="w-full p-4 md:p-6 rounded-2xl bg-navy-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-accent transition-all text-base md:text-lg font-medium"
+                        disabled={loading}
+                        className={`w-full p-4 md:p-6 rounded-2xl bg-navy-900 border transition-all text-base md:text-lg font-medium focus:outline-none focus:ring-2 focus:ring-indigo-accent ${
+                          selectedAnswer && !state.currentWhy.options.includes(selectedAnswer)
+                            ? 'border-indigo-accent bg-indigo-accent/10'
+                            : 'border-white/10'
+                        }`}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                          if (e.key === 'Enter' && e.currentTarget.value.trim() && !loading) {
                             handleAnswer(e.currentTarget.value);
                             e.currentTarget.value = '';
                           }
                         }}
                       />
-                      <div className="hidden md:block absolute right-6 top-1/2 -translate-y-1/2 text-slate-muted text-xs font-bold uppercase tracking-widest opacity-50">
-                        Press Enter
-                      </div>
+                      {selectedAnswer && !state.currentWhy.options.includes(selectedAnswer) ? (
+                        <div className="absolute right-6 top-1/2 -translate-y-1/2">
+                          <Loader2 className="animate-spin text-indigo-accent" size={20} />
+                        </div>
+                      ) : (
+                        <div className="hidden md:block absolute right-6 top-1/2 -translate-y-1/2 text-slate-muted text-xs font-bold uppercase tracking-widest opacity-50">
+                          Press Enter
+                        </div>
+                      )}
                     </div>
                     <p className="text-center text-xs text-slate-muted font-bold uppercase tracking-widest mt-2">
                       pick what feels closest
@@ -730,6 +833,10 @@ export default function App() {
         <footer className="mt-24 text-center text-slate-muted text-sm font-bold uppercase tracking-widest opacity-50">
           <p>© {new Date().getFullYear()} 5 Whys Root Cause Analyzer</p>
           <p className="mt-2 italic lowercase tracking-normal font-medium">Built for clarity and action.</p>
+          <div className="mt-6 flex items-center justify-center gap-2 text-[10px] tracking-normal font-medium">
+            <AlertCircle size={12} className="opacity-70" />
+            <span>Free tier: 15 requests/min</span>
+          </div>
         </footer>
       </div>
     </div>
