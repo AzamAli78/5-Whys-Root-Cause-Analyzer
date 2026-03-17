@@ -5,7 +5,8 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 export async function generateNextWhy(
   problem: string,
-  previousSteps: { why: string; answer: string }[]
+  previousSteps: { why: string; answer: string }[],
+  customInstruction?: string
 ): Promise<WhyStep> {
   const model = "gemini-3-flash-preview";
   
@@ -13,7 +14,10 @@ export async function generateNextWhy(
     ? `Previous steps:\n${previousSteps.map((s, i) => `Why #${i + 1}: ${s.why}\nAnswer: ${s.answer}`).join('\n')}`
     : "";
 
-  const prompt = `You are a Root Cause Analysis expert. 
+  const defaultInstruction = "You are a Root Cause Analysis expert.";
+  const instruction = customInstruction || defaultInstruction;
+
+  const prompt = `${instruction}
 The user's initial problem is: "${problem}"
 ${context}
 
@@ -48,13 +52,17 @@ Return the result as JSON.`;
 
 export async function generateFinalAnalysis(
   problem: string,
-  steps: { why: string; answer: string }[]
+  steps: { why: string; answer: string }[],
+  customInstruction?: string
 ) {
   const model = "gemini-3-flash-preview";
   
   const chain = steps.map((s, i) => `Why #${i + 1}: ${s.why}\nAnswer: ${s.answer}`).join('\n');
 
-  const prompt = `You are a Root Cause Analysis expert.
+  const defaultInstruction = "You are a Root Cause Analysis expert.";
+  const instruction = customInstruction || defaultInstruction;
+
+  const prompt = `${instruction}
 Initial Problem: ${problem}
 The 5 Whys Chain:
 ${chain}

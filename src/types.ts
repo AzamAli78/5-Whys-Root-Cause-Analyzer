@@ -7,9 +7,11 @@ export interface HistoryEntry {
   id: string;
   date: string;
   problem: string;
+  steps: { why: string; answer: string }[];
   rootCause: string;
   solution: string[];
   proTip: string;
+  feedback?: 'helpful' | 'not-helpful';
 }
 
 export interface AnalysisState {
