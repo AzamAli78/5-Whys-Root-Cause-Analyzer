@@ -199,18 +199,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-navy-900 text-slate-light font-sans selection:bg-indigo-accent selection:text-white">
-      <div className="max-w-2xl mx-auto px-6 py-12 md:py-20">
+      <div className="max-w-2xl mx-auto px-4 md:px-6 py-8 md:py-20">
         
         {/* Header */}
         <header className="mb-8 md:mb-12 text-center relative">
-          <div className="flex justify-end gap-2 mb-6 md:absolute md:right-0 md:top-0 md:mb-0">
+          <div className="flex justify-center md:justify-end gap-2 mb-8 md:absolute md:right-0 md:top-0 md:mb-0">
             <button 
               onClick={() => {
                 setShowSettings(!showSettings);
                 if (state.status === 'history') setState(prev => ({ ...prev, status: 'idle' }));
                 if (showInfo) setShowInfo(false);
               }}
-              className={`p-2.5 md:p-3 rounded-xl transition-colors ${showSettings ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
+              className={`p-3 rounded-xl transition-colors ${showSettings ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
               title="Settings"
             >
               <Settings size={20} className="md:w-6 md:h-6" />
@@ -221,7 +221,7 @@ export default function App() {
                 if (state.status === 'history') setState(prev => ({ ...prev, status: 'idle' }));
                 if (showSettings) setShowSettings(false);
               }}
-              className={`p-2.5 md:p-3 rounded-xl transition-colors ${showInfo ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
+              className={`p-3 rounded-xl transition-colors ${showInfo ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
               title="How it Works"
             >
               <HelpCircle size={20} className="md:w-6 md:h-6" />
@@ -232,7 +232,7 @@ export default function App() {
                 if (showSettings) setShowSettings(false);
                 if (showInfo) setShowInfo(false);
               }}
-              className={`p-2.5 md:p-3 rounded-xl transition-colors ${state.status === 'history' ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
+              className={`p-3 rounded-xl transition-colors ${state.status === 'history' ? 'bg-indigo-accent text-white' : 'bg-navy-800 text-slate-muted hover:bg-navy-800/80'}`}
               title="History"
             >
               {state.status === 'history' ? <X size={20} className="md:w-6 md:h-6" /> : <History size={20} className="md:w-6 md:h-6" />}
@@ -242,16 +242,16 @@ export default function App() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-block mb-6"
+            className="inline-block mb-4 md:mb-6"
           >
-            <div className="w-16 h-16 bg-indigo-accent rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-accent/20">
-              <Search size={32} />
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-indigo-accent rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-accent/20">
+              <Search size={24} className="md:w-8 md:h-8" />
             </div>
           </motion.div>
           <motion.h1 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold mb-4 tracking-tight"
+            className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 tracking-tight"
           >
             5 Whys Analyzer
           </motion.h1>
@@ -259,7 +259,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-slate-muted text-lg font-medium"
+            className="text-slate-muted text-base md:text-lg font-medium"
           >
             Find the real reason behind any problem.
           </motion.p>
@@ -566,15 +566,15 @@ export default function App() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
-                className="bg-navy-800 rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-2xl border border-white/5"
+                className="bg-navy-800 rounded-[24px] md:rounded-[32px] p-5 md:p-10 shadow-2xl border border-white/5"
               >
-                <h2 className="text-xl md:text-2xl font-bold mb-6 md:mb-8 text-center">What's the problem?</h2>
+                <h2 className="text-lg md:text-2xl font-bold mb-6 md:mb-8 text-center">What's the problem?</h2>
                 <div className="space-y-6">
                   <div className="relative">
                     <textarea
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
-                      className="w-full h-32 md:h-40 p-4 md:p-6 rounded-2xl bg-navy-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-accent transition-all resize-none text-lg md:text-xl font-medium placeholder:text-slate-muted/50"
+                      className="w-full h-32 md:h-40 p-4 md:p-6 rounded-2xl bg-navy-900 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-accent transition-all resize-none text-base md:text-xl font-medium placeholder:text-slate-muted/50"
                     />
                     <AnimatePresence mode="wait">
                       {!inputValue && (
@@ -584,7 +584,7 @@ export default function App() {
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 4 }}
-                          className="absolute top-4 left-4 md:top-6 md:left-6 pointer-events-none text-lg md:text-xl font-medium text-slate-muted/50 pr-8"
+                          className="absolute top-4 left-4 md:top-6 md:left-6 pointer-events-none text-base md:text-xl font-medium text-slate-muted/50 pr-8"
                         >
                           {placeholders[placeholderIndex]}
                         </motion.div>
@@ -594,7 +594,7 @@ export default function App() {
                   <button
                     onClick={() => startAnalysis(inputValue)}
                     disabled={loading || !inputValue.trim()}
-                    className="w-full py-5 bg-indigo-accent text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-accent/90 transition-all shadow-lg shadow-indigo-accent/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-4 md:py-5 bg-indigo-accent text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-accent/90 transition-all shadow-lg shadow-indigo-accent/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     title={inputValue.trim() ? "Begin the 5 Whys process" : "Please enter a problem first"}
                   >
                     {loading ? (
@@ -651,8 +651,8 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="bg-navy-800 rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-2xl border border-white/5">
-                  <h3 className="text-xl md:text-3xl font-bold mb-8 md:mb-10 leading-tight">
+                <div className="bg-navy-800 rounded-[24px] md:rounded-[32px] p-5 md:p-10 shadow-2xl border border-white/5">
+                  <h3 className="text-lg md:text-3xl font-bold mb-6 md:mb-10 leading-tight">
                     {state.currentWhy.question}
                   </h3>
                   
@@ -662,20 +662,20 @@ export default function App() {
                         key={idx}
                         onClick={() => handleAnswer(option)}
                         disabled={loading}
-                        className={`group flex items-center justify-between p-4 md:p-6 rounded-2xl transition-all text-left border ${
+                        className={`group flex items-center justify-between p-4 md:p-6 rounded-xl md:rounded-2xl transition-all text-left border ${
                           selectedAnswer === option 
                             ? 'bg-indigo-accent/20 border-indigo-accent shadow-[0_0_15px_rgba(99,102,241,0.3)]' 
                             : 'bg-navy-900 border-white/5 hover:border-indigo-accent hover:bg-navy-900/50'
                         }`}
                         title={`Select: ${option}`}
                       >
-                        <span className={`text-base md:text-lg font-medium pr-4 transition-colors ${selectedAnswer === option ? 'text-indigo-accent' : ''}`}>
+                        <span className={`text-sm md:text-lg font-medium pr-4 transition-colors ${selectedAnswer === option ? 'text-indigo-accent' : ''}`}>
                           {option}
                         </span>
                         {selectedAnswer === option ? (
-                          <Loader2 className="animate-spin text-indigo-accent flex-shrink-0" size={20} />
+                          <Loader2 className="animate-spin text-indigo-accent flex-shrink-0" size={18} />
                         ) : (
-                          <ChevronRight className="text-slate-muted group-hover:text-indigo-accent transition-colors flex-shrink-0" size={20} />
+                          <ChevronRight className="text-slate-muted group-hover:text-indigo-accent transition-colors flex-shrink-0" size={18} />
                         )}
                       </button>
                     ))}
@@ -684,7 +684,7 @@ export default function App() {
                         type="text"
                         placeholder="D) Other (type your own...)"
                         disabled={loading}
-                        className={`w-full p-4 md:p-6 rounded-2xl bg-navy-900 border transition-all text-base md:text-lg font-medium focus:outline-none focus:ring-2 focus:ring-indigo-accent ${
+                        className={`w-full p-4 md:p-6 rounded-xl md:rounded-2xl bg-navy-900 border transition-all text-sm md:text-lg font-medium focus:outline-none focus:ring-2 focus:ring-indigo-accent ${
                           selectedAnswer && !state.currentWhy.options.includes(selectedAnswer)
                             ? 'border-indigo-accent bg-indigo-accent/10'
                             : 'border-white/10'
@@ -697,8 +697,8 @@ export default function App() {
                         }}
                       />
                       {selectedAnswer && !state.currentWhy.options.includes(selectedAnswer) ? (
-                        <div className="absolute right-6 top-1/2 -translate-y-1/2">
-                          <Loader2 className="animate-spin text-indigo-accent" size={20} />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                          <Loader2 className="animate-spin text-indigo-accent" size={18} />
                         </div>
                       ) : (
                         <div className="hidden md:block absolute right-6 top-1/2 -translate-y-1/2 text-slate-muted text-xs font-bold uppercase tracking-widest opacity-50">
@@ -706,7 +706,7 @@ export default function App() {
                         </div>
                       )}
                     </div>
-                    <p className="text-center text-xs text-slate-muted font-bold uppercase tracking-widest mt-2">
+                    <p className="text-center text-[10px] text-slate-muted font-bold uppercase tracking-widest mt-2">
                       pick what feels closest
                     </p>
                   </div>
@@ -751,40 +751,40 @@ export default function App() {
                   <h2 className="text-2xl font-bold text-emerald-success">Here's what we found 🎯</h2>
                 </div>
 
-                <div className="bg-white rounded-[24px] md:rounded-[32px] p-6 md:p-10 shadow-2xl text-navy-900">
+                <div className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-10 shadow-2xl text-navy-900">
                   <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 text-indigo-accent">
-                    <Search size={24} className="md:w-8 md:h-8" />
-                    <h2 className="text-base md:text-xl font-bold uppercase tracking-widest">🔍 Root Cause Identified</h2>
+                    <Search size={20} className="md:w-8 md:h-8" />
+                    <h2 className="text-sm md:text-xl font-bold uppercase tracking-widest">🔍 Root Cause Identified</h2>
                   </div>
-                  <p className="text-xl md:text-3xl font-bold leading-tight mb-8 md:mb-10">
+                  <p className="text-lg md:text-3xl font-bold leading-tight mb-6 md:mb-10">
                     {state.result.rootCause}
                   </p>
 
-                  <div className="h-px bg-navy-900/10 mb-8 md:mb-10" />
+                  <div className="h-px bg-navy-900/10 mb-6 md:mb-10" />
 
                   <div className="space-y-6 md:space-y-8">
                     <div className="flex items-center gap-3 md:gap-4 text-emerald-success">
-                      <CheckCircle2 size={24} className="md:w-8 md:h-8" />
-                      <h3 className="text-base md:text-xl font-bold uppercase tracking-widest">✅ Actionable Solution</h3>
+                      <CheckCircle2 size={20} className="md:w-8 md:h-8" />
+                      <h3 className="text-sm md:text-xl font-bold uppercase tracking-widest">✅ Actionable Solution</h3>
                     </div>
                     <ul className="space-y-4 md:space-y-6">
                       {state.result.solution.map((step, i) => (
                         <li key={i} className="flex gap-3 md:gap-5 items-start">
-                          <span className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-emerald-success/10 text-emerald-success flex items-center justify-center text-sm md:text-lg font-bold">
+                          <span className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-emerald-success/10 text-emerald-success flex items-center justify-center text-xs md:text-lg font-bold">
                             {i + 1}
                           </span>
-                          <span className="text-base md:text-xl font-medium text-navy-900/90">{step}</span>
+                          <span className="text-sm md:text-xl font-medium text-navy-900/90">{step}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="mt-8 md:mt-12 p-6 md:p-8 bg-amber-warning/5 rounded-2xl md:rounded-3xl border border-amber-warning/20">
-                    <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4 text-amber-warning">
-                      <Lightbulb size={24} className="md:w-7 md:h-7" />
-                      <h4 className="font-bold uppercase tracking-widest text-xs md:text-sm">💡 Pro Tip</h4>
+                  <div className="mt-6 md:mt-12 p-5 md:p-8 bg-amber-warning/5 rounded-2xl md:rounded-3xl border border-amber-warning/20">
+                    <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4 text-amber-warning">
+                      <Lightbulb size={20} className="md:w-7 md:h-7" />
+                      <h4 className="font-bold uppercase tracking-widest text-[10px] md:text-sm">💡 Pro Tip</h4>
                     </div>
-                    <p className="italic text-base md:text-xl text-navy-900/80 leading-relaxed">
+                    <p className="italic text-sm md:text-xl text-navy-900/80 leading-relaxed">
                       {state.result.proTip}
                     </p>
                   </div>

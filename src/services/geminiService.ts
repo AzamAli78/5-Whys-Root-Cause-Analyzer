@@ -1,5 +1,8 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
 import { WhyStep } from "../types";
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const MODEL_NAME = "gemini-3-flash-preview";
 
 export class AIError extends Error {
   constructor(public message: string, public type: 'rate-limit' | 'api-key' | 'safety' | 'server' | 'unknown') {
@@ -37,9 +40,6 @@ export async function generateNextWhy(
   previousSteps: { why: string; answer: string }[],
   customInstruction?: string
 ): Promise<WhyStep> {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-  const model = "gemini-3-flash-preview";
-  
   const context = previousSteps.length > 0 
     ? `Previous steps:\n${previousSteps.map((s, i) => `Why #${i + 1}: ${s.why}\nAnswer: ${s.answer}`).join('\n')}`
     : "";
@@ -59,9 +59,10 @@ Return the result as JSON.`;
 
   try {
     const response = await ai.models.generateContent({
-      model,
+      model: MODEL_NAME,
       contents: prompt,
       config: {
+        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -91,9 +92,6 @@ export async function generateFinalAnalysis(
   steps: { why: string; answer: string }[],
   customInstruction?: string
 ) {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-  const model = "gemini-3-flash-preview";
-  
   const chain = steps.map((s, i) => `Why #${i + 1}: ${s.why}\nAnswer: ${s.answer}`).join('\n');
 
   const defaultInstruction = "You are a Root Cause Analysis expert.";
@@ -113,9 +111,10 @@ Return the result as JSON.`;
 
   try {
     const response = await ai.models.generateContent({
-      model,
+      model: MODEL_NAME,
       contents: prompt,
       config: {
+        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
