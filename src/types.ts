@@ -25,4 +25,5 @@ export interface AnalysisState {
     solution: string[];
     proTip: string;
   };
+  currentEntryId?: string;
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, ArrowRight, RefreshCw, CheckCircle2, Lightbulb, AlertCircle, Loader2, ChevronRight, History, Trash2, X, Calendar, Target, Settings, Save, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Search, ArrowRight, RefreshCw, CheckCircle2, Lightbulb, AlertCircle, Loader2, ChevronRight, History, Trash2, X, Calendar, Target, Settings, Save, ThumbsUp, ThumbsDown, Copy, Check } from 'lucide-react';
 import { AnalysisState, HistoryEntry } from './types';
 import { generateNextWhy, generateFinalAnalysis } from './services/geminiService';
 
@@ -18,6 +18,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const [customWhyInstruction, setCustomWhyInstruction] = useState('You are a Root Cause Analysis expert.');
   const [customAnalysisInstruction, setCustomAnalysisInstruction] = useState('You are a Root Cause Analysis expert.');
@@ -45,6 +46,10 @@ export default function App() {
     }, 8000);
     return () => clearInterval(interval);
   }, [state.status, placeholders.length]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [state.status]);
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('5whys_history');
@@ -134,8 +139,9 @@ export default function App() {
         setState(prev => ({ ...prev, status: 'analyzing', steps: newSteps }));
         const analysis = await generateFinalAnalysis(state.problem, newSteps, customAnalysisInstruction);
         
+        const entryId = crypto.randomUUID();
         const newEntry: HistoryEntry = {
-          id: crypto.randomUUID(),
+          id: entryId,
           date: new Date().toISOString(),
           problem: state.problem,
           steps: newSteps,
@@ -149,6 +155,7 @@ export default function App() {
           ...prev,
           status: 'completed',
           result: analysis,
+          currentEntryId: entryId,
         }));
       }
     } catch (err) {
@@ -166,7 +173,7 @@ export default function App() {
 
   const handleFeedback = (id: string, feedback: 'helpful' | 'not-helpful') => {
     setHistory(prev => prev.map(entry => 
-      entry.id === id ? { ...prev.find(e => e.id === id)!, feedback } : entry
+      entry.id === id ? { ...entry, feedback } : entry
     ));
   };
 
@@ -179,6 +186,16 @@ export default function App() {
     });
     setInputValue('');
     setError(null);
+    setSelectedAnswer(null);
+    setCopied(false);
+  };
+
+  const copyToClipboard = () => {
+    if (!state.result) return;
+    const text = `Root Cause: ${state.result.rootCause}\n\nSolution:\n${state.result.solution.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\nPro Tip: ${state.result.proTip}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const filteredHistory = useMemo(() => {
@@ -342,10 +359,24 @@ export default function App() {
                       localStorage.removeItem('5whys_custom_why_prompt');
                       localStorage.removeItem('5whys_custom_analysis_prompt');
                     }}
-                    className="w-full text-xs font-bold uppercase tracking-widest text-slate-muted hover:text-amber-warning transition-colors"
+                    className="w-full text-xs font-bold uppercase tracking-widest text-slate-muted hover:text-amber-warning transition-colors py-2"
                   >
-                    Reset to Defaults
+                    Reset Prompts to Defaults
                   </button>
+
+                  <div className="pt-4 border-t border-white/5">
+                    <button 
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete all history? This cannot be undone.')) {
+                          setHistory([]);
+                        }
+                      }}
+                      className="w-full text-xs font-bold uppercase tracking-widest text-slate-muted hover:text-amber-warning transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Trash2 size={14} />
+                      Clear All History
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -467,7 +498,7 @@ export default function App() {
                   )}
                 </div>
                 <button
-                  onClick={() => setState(prev => ({ ...prev, status: 'idle' }))}
+                  onClick={reset}
                   className="w-full py-5 bg-indigo-accent text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-accent/90 transition-all shadow-lg shadow-indigo-accent/20"
                 >
                   Start New Analysis
@@ -704,31 +735,43 @@ export default function App() {
                   </div>
 
                   <div className="mt-10 pt-10 border-t border-navy-900/10 text-center">
-                    <p className="text-sm font-bold uppercase tracking-widest text-slate-muted mb-4">Was this analysis helpful?</p>
-                    <div className="flex justify-center gap-4">
-                      {history[0]?.feedback ? (
-                        <p className="text-emerald-success font-bold flex items-center gap-2">
-                          <CheckCircle2 size={20} />
-                          Thanks for your feedback!
-                        </p>
-                      ) : (
-                        <>
-                          <button 
-                            onClick={() => handleFeedback(history[0].id, 'helpful')}
-                            className="flex items-center gap-2 px-6 py-3 rounded-xl border border-navy-900/10 hover:bg-emerald-success/10 hover:border-emerald-success hover:text-emerald-success transition-all font-bold"
-                          >
-                            <ThumbsUp size={20} />
-                            Helpful
-                          </button>
-                          <button 
-                            onClick={() => handleFeedback(history[0].id, 'not-helpful')}
-                            className="flex items-center gap-2 px-6 py-3 rounded-xl border border-navy-900/10 hover:bg-amber-warning/10 hover:border-amber-warning hover:text-amber-warning transition-all font-bold"
-                          >
-                            <ThumbsDown size={20} />
-                            Not Helpful
-                          </button>
-                        </>
-                      )}
+                    <div className="flex flex-col items-center gap-6">
+                      <button 
+                        onClick={copyToClipboard}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all font-bold ${copied ? 'bg-emerald-success text-white' : 'bg-navy-900/5 text-navy-900 hover:bg-navy-900/10'}`}
+                      >
+                        {copied ? <Check size={20} /> : <Copy size={20} />}
+                        {copied ? 'Copied!' : 'Copy Results'}
+                      </button>
+
+                      <div className="w-full">
+                        <p className="text-sm font-bold uppercase tracking-widest text-slate-muted mb-4">Was this analysis helpful?</p>
+                        <div className="flex justify-center gap-4">
+                          {history.find(e => e.id === state.currentEntryId)?.feedback ? (
+                            <p className="text-emerald-success font-bold flex items-center gap-2">
+                              <CheckCircle2 size={20} />
+                              Thanks for your feedback!
+                            </p>
+                          ) : (
+                            <>
+                              <button 
+                                onClick={() => state.currentEntryId && handleFeedback(state.currentEntryId, 'helpful')}
+                                className="flex items-center gap-2 px-6 py-3 rounded-xl border border-navy-900/10 hover:bg-emerald-success/10 hover:border-emerald-success hover:text-emerald-success transition-all font-bold"
+                              >
+                                <ThumbsUp size={20} />
+                                Helpful
+                              </button>
+                              <button 
+                                onClick={() => state.currentEntryId && handleFeedback(state.currentEntryId, 'not-helpful')}
+                                className="flex items-center gap-2 px-6 py-3 rounded-xl border border-navy-900/10 hover:bg-amber-warning/10 hover:border-amber-warning hover:text-amber-warning transition-all font-bold"
+                              >
+                                <ThumbsDown size={20} />
+                                Not Helpful
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
